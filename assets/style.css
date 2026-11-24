@@ -67,7 +67,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .hero{padding-block:0}
 .hero-split{display:grid;grid-template-columns:1fr}
 .hero-split .photo{aspect-ratio:4/5;max-height:78svh;width:100%;overflow:hidden}
-.hero-split .photo img{width:100%;height:100%;object-fit:cover;object-position:35% 60%}
+.hero-split .photo img{width:100%;height:100%;object-fit:cover;object-position:50% 35%}
 .hero-split .copy{padding-block:2.8rem 4rem;display:flex;flex-direction:column;justify-content:center;gap:1.6rem}
 @media (min-width:900px){
   .hero-split{grid-template-columns:1.05fr .95fr;min-height:min(86svh, 860px)}
@@ -157,3 +157,7 @@ details .ans{margin-top:.9rem;display:flex;flex-direction:column;gap:.8rem;color
 .foot ul{list-style:none;margin:0;padding:0;display:grid;gap:.55rem;font-size:.95rem}
 .foot .soft{color:var(--dark-soft)}
 .center{text-align:center;align-items:center;margin-inline:auto}
+
+/* her voice on the page (Lo-style character, rule 259): bold key lines, a soft highlighter on the one that matters */
+strong{font-weight:600}
+mark{background:linear-gradient(transparent 55%, color-mix(in srgb, var(--gold) 45%, transparent) 55%);color:inherit;padding:0 .1em}
