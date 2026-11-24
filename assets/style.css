@@ -1,6 +1,6 @@
 /* To See As It Is — site styles v2 (Kartike, 24 Nov 2026). Design system: 07-brand/DESIGN.md
    Layout: editorial split heroes (photo + type), alternating deep-forest and cream bands, lots of air.
-   Premium = restraint: high-contrast serif, cream + forest, gold only as a hairline accent (rule 257). */
+   Premium = restraint: high-contrast serif, cream + forest, gold only as a hairline accent (rule 258). */
 :root{
   --forest:#0F1F16; --forest-2:#16291D; --cream:#F3EDE1; --sand:#E4D9C4; --gold:#C9A227; --ink:#141A15; --stone:#5B6357;
   --bg:var(--cream); --fg:var(--ink); --soft:var(--stone); --line:#D6CAB2; --card:#F8F4EB;
