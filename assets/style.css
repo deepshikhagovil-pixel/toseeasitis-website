@@ -158,6 +158,35 @@ details .ans{margin-top:.9rem;display:flex;flex-direction:column;gap:.8rem;color
 .foot .soft{color:var(--dark-soft)}
 .center{text-align:center;align-items:center;margin-inline:auto}
 
-/* her voice on the page (Lo-style character, rule 259): bold key lines, a soft highlighter on the one that matters */
+/* her voice on the page (Lo-style character, rule 261): bold key lines, a soft highlighter on the one that matters */
 strong{font-weight:600}
 mark{background:linear-gradient(transparent 55%, color-mix(in srgb, var(--gold) 45%, transparent) 55%);color:inherit;padding:0 .1em}
+
+/* pattern-break: pain lines scattered like notes, not a list (her note on Lo's page, 24 Nov 2026) */
+.scatter{display:grid;gap:1.1rem}
+.bubble{background:var(--forest-2);border:1px solid var(--line);padding:1.4rem 1.5rem;font-family:var(--display);font-size:clamp(1.3rem,2.4vw,1.65rem);line-height:1.3;max-width:30rem}
+.bubble .when{display:block;font:500 .7rem/1.4 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem}
+.bubble em{color:#fff}
+@media (min-width:860px){
+  .scatter{grid-template-columns:repeat(6,1fr);gap:1.4rem;align-items:start}
+  .b1{grid-column:1/4;transform:rotate(-1deg)}
+  .b2{grid-column:4/7;margin-top:3.5rem;transform:rotate(1deg)}
+  .b3{grid-column:2/5;transform:rotate(-.5deg)}
+  .b4{grid-column:4/7;margin-top:-1rem;transform:rotate(.8deg)}
+  .b5{grid-column:1/4;margin-top:-1.5rem;transform:rotate(-.8deg)}
+}
+@media (max-width:859px){.b2,.b4{margin-left:auto}.bubble{max-width:88%}}
+
+/* for / not for: unmistakable */
+.fit-card{padding:clamp(1.6rem,4vw,2.6rem);display:flex;flex-direction:column;gap:1.2rem;min-width:0}
+.fit-card.yes{background:var(--card);border:1px solid var(--gold)}
+.fit-card.no{background:var(--forest);color:var(--dark-fg);--soft:var(--dark-soft);--line:var(--dark-line)}
+.fit-card .caps{border-bottom:2px solid var(--gold)}
+.marks{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.marks li{position:relative;padding:1rem 0 1rem 2.6rem;border-bottom:1px solid var(--line)}
+.marks li:last-child{border-bottom:0}
+.marks li::before{position:absolute;left:0;top:1rem;width:1.7rem;height:1.7rem;border-radius:50%;display:grid;place-items:center;font:700 .9rem/1 var(--sans)}
+.yes .marks li::before{content:"✓";background:var(--gold);color:#0F1F16}
+.no .marks li::before{content:"✕";border:1px solid var(--dark-soft);color:var(--dark-fg)}
+.fit ul{border-top:0}
+.fit li{font-size:1.05rem}
