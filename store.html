@@ -70,11 +70,12 @@
     </select>
     <button class="btn btn-main" type="submit">Send it to me</button>
     <p class="note" id="f-err" hidden>That didn't go through. Please try again, or email support@toseeasitis.com</p>
-    <p class="note" id="f-ok" hidden>Done! Check your inbox. If the challenge isn't running right now, you're first on the list for the next group.</p>
+    <p class="note" id="f-ok" hidden></p>
   </form>
 </div></section>
 <script>
 /* Free form → Brevo (one Brevo form per freebie; Brevo adds to the list and sends the email). Kartike, 25 Nov 2026 */
+var DONE={identity:"Done! Check your inbox for your Identity Shift masterclass. (Not there in 5 minutes? Look in Promotions or Spam.)",career:"Done! Check your inbox for your Career Clarity masterclass. (Not there in 5 minutes? Look in Promotions or Spam.)",challenge:"You're on the list! I'll send you the Telegram link myself when the next group starts. Check your inbox for a note from me."};
 var BREVO={identity:"https://6fdca418.sibforms.com/serve/MUIFAEQu-gy5l7iMcfNmxtB8mBtYuWPCiLpAvMdIwwmkM-81ikuL-X0anqHqu4Z4zzF3HaoiF0pqoO4QWPpuH_qQeMjLVaNLKrW7EssgGARwyF1vsAIdYsZbfxqzyoJZa-Tn3Y9jsJY-PZOy0VDaLPy-tTt5WPkec6helgJxat9jJ56HfiYWJv3yNyRrhN-Y6hCWcSGTCD6yIFh3EQ==",career:"https://6fdca418.sibforms.com/serve/MUIFAHFHlDScWZk_3Om60RWFzKzfdKBwPklnKAnFXp-EYquqm0djZJ5YvuBCFkYbNi9-xk62VRwRvTigvvBthopq1IqSl_bNo9jRYr-z5CkljUE-5UlaJ4vegaKFkFdkkUkh1URnkYXvMA4rA05p_HuavL96n6a5Vz7i8K_3zmu6aibevAeHbUSetA9rJtYoCvAujo_XTi6LyYiBgw==",challenge:"https://6fdca418.sibforms.com/serve/MUIFABB7bP6jl7gSMSqpXlgF4yv66KppRTgENa5utFmtAr-gZcjfk5PAGlvjl6usvSfcJ33VYU1nazzVJ5por4SvIRdHc01Z0W6_Iut0MP_X9ezVGJnMG8QT5G7i5_Z3lWfV38V9lKYoihuC0302PcQ0g9grv_j50GgHOk7hm72ddKLfmMJCgiCRyp0x9lIhHlTCuQmsVwPM1TIOFA=="};
 document.getElementById('free-form').addEventListener('submit',function(e){
   e.preventDefault();var f=e.target;if(!f.reportValidity())return;
@@ -85,7 +86,7 @@ document.getElementById('free-form').addEventListener('submit',function(e){
   var h=document.createElement('form');h.method='POST';h.action=BREVO[f.elements['what'].value];h.target='brevo-frame';h.hidden=true;
   [['FIRSTNAME',f.elements['name'].value.trim()],['EMAIL',f.elements['email'].value.trim()],['INSTA_HANDLE',f.elements['instagram'].value.trim()],['email_address_check',''],['locale','en']].forEach(function(kv){var i=document.createElement('input');i.type='hidden';i.name=kv[0];i.value=kv[1];h.appendChild(i);});
   document.body.appendChild(h);
-  var done=false;function ok(){if(done)return;done=true;f.querySelectorAll('input,select,label').forEach(function(x){x.hidden=true});b.hidden=true;document.getElementById('f-ok').hidden=false;h.remove();}
+  var done=false;function ok(){if(done)return;done=true;f.querySelectorAll('input,select,label').forEach(function(x){x.hidden=true});b.hidden=true;var m=document.getElementById('f-ok');m.textContent=DONE[f.elements['what'].value];m.hidden=false;h.remove();}
   fr.onload=ok;
   try{h.submit();setTimeout(ok,2500);}catch(x){b.disabled=false;b.textContent='Send it to me';err.hidden=false;}
 });
