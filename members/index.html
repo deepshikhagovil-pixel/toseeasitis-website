@@ -109,10 +109,10 @@ td button{all:unset;cursor:pointer;text-decoration:underline}
    <p class="label">Today's check-in</p>
    <label class="check"><input type="checkbox" id="c-action"> I did today's daily action</label>
    <label class="check"><input type="checkbox" id="c-lesson"> I watched or did today's lesson</label>
-   <label for="c-loud" style="font-size:.93rem">How loud is the "should I?" today? <b id="c-loud-v">5</b>/10</label>
+   <label for="c-loud" style="font-size:.93rem"><span id="c-scale-q"></span> <b id="c-loud-v">5</b>/10</label>
    <input type="range" id="c-loud" min="1" max="10" value="5">
-   <label for="c-win" style="font-size:.93rem">One win, however small</label>
-   <textarea id="c-win" placeholder="I said no without explaining myself."></textarea>
+   <label for="c-win" style="font-size:.93rem" id="c-note-q"></label>
+   <textarea id="c-win"></textarea>
    <button class="btn main" type="submit">Save today</button>
    <p class="small" id="c-msg" role="status">🔒 Only you and Deepshikha can see this.</p>
   </form>
@@ -138,7 +138,25 @@ const $ = id => document.getElementById(id);
 const VIEWS = ["v-loading","v-login","v-none","v-course","v-admin"];
 const show = v => VIEWS.forEach(x => $(x).hidden = x !== v);
 const el = (tag, props = {}, kids = []) => { const e = document.createElement(tag); Object.assign(e, props); kids.forEach(k => e.append(k)); return e; };
-const QUOTES = ["Coming back is part of coming home.","This is fear, not a fact.","You don't need a plan. You just need the next step.","The answer isn't coming from outside. It's already in you.","Small and honest beats polished."];
+// Week-by-week check-in + daily line from her own lessons (her note 25 Nov 2026: changes every week, no "should I?" from the free challenge; a new line every day)
+const WEEK = {
+ 0:{scale:"How ready do you feel to come home?", note:"What made you say yes to this?", ph:"I'm tired of living a life that isn't mine.",
+    quotes:["You're here. That already says everything.","Take what resonates, leave the rest.","You can never do this wrong or be behind.","This is your time. Not a minute of it is wasted."]},
+ 1:{scale:"How much of today was YOUR choice?", note:"Whose rule did you catch yourself following today?", ph:"I said yes to the extra work because good girls don't say no.",
+    quotes:["You were taught this life. You can unlearn it.","Catch yourself in the act. No judging, only noticing.","The rule isn't yours. You can hand it back.","Your body knows before your head does.","Fear shouts. Intuition states.","Whose voice is this, really?","You're not stuck. You're living by rules you never chose."]},
+ 2:{scale:"How clear do you feel today?", note:"Something I already know is…", ph:"I don't want to go back to that office.",
+    quotes:["You're not short of information. You're short of permission.","What am I pretending not to know?","Am I scared, or am I clear?","A lot of what we call wants are shoulds wearing a costume.","If it feels mad, crazy and unreal, you're doing it right.","The idea that lit you up doesn't need five opinions.","You already know."]},
+ 3:{scale:"How strong was the pull back to the old life today?", note:"When did you pause one minute before, and what happened?", ph:"I wanted to scroll after the call. I breathed instead.",
+    quotes:["A few more months is not a plan. It's a feeling wearing the plan's clothes.","This is fear, not a fact.","Nothing is wrong with you. Your body is keeping you safe.","The blank isn't a failure. It's information.","Coming back is part of coming home.","Your limit can move. A little more each time.","Gentle, yet firm."]},
+ 4:{scale:"How seen did you let yourself be today?", note:"What did you share today?", ph:"I posted the story I'd been holding for a week.",
+    quotes:["Whatever you choose, it's an experiment.","Nobody is handing you a stamp paper saying this is your life.","Small and honest beats polished.","Your brain believes what you do more than what you say.","You don't need a plan. You just need the next step.","Is this the next true step?","Who wrote the script of your life?"]},
+ 5:{scale:"How easily did you receive today?", note:"Today I let in…", ph:"A compliment. I just said thank you.",
+    quotes:["The way you take a compliment is the way you'll take a payment.","Your bank balance doesn't get a vote.","It's not scary once it's a number.","Say thank you. Nothing after it.","Small is perfect.","I can receive.","More is on its way."]},
+ 6:{scale:"How much did you live as her today?", note:"Today I chose from who I'm becoming by…", ph:"I said my truth to my sister.",
+    quotes:["Stop visiting her. Live as her.","You came here to be this.","Say it to one person. Make it real.","When the old life calls, you know your way home.","Look how far you've walked."]}
+};
+const dayOfYear = () => Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 864e5);
+function myWeek(){ const open = S.lessons.filter(x => x.unlocked && !S.done.has(x.id)); return (open[0] || S.lessons[S.lessons.length-1] || {week:0}).week; }
 let S = { weeks: [], lessons: [], done: new Set(), current: null, user: null };
 
 function richText(t){ // escape, then **bold**
@@ -169,7 +187,9 @@ async function loadCourse(){
   seq.forEach((x, i) => x.unlocked = i === 0 || S.done.has(seq[i-1].id));
   const next = seq.find(x => x.unlocked && !S.done.has(x.id)) || seq[seq.length-1];
   if (!S.current || !seq.find(x => x.id === S.current)) S.current = next?.id;
-  $("quote").textContent = QUOTES[new Date().getDate() % QUOTES.length];
+  const W = WEEK[myWeek()] || WEEK[0];
+  $("quote").textContent = W.quotes[dayOfYear() % W.quotes.length];
+  $("c-scale-q").textContent = W.scale; $("c-note-q").textContent = W.note; $("c-win").placeholder = W.ph;
   renderNav(); renderLesson(); loadCheckin();
 }
 
@@ -259,11 +279,12 @@ async function loadCheckin(){
   const { data } = await SB.from("checkins").select("answers").eq("user_id", S.user.id).eq("day", today()).maybeSingle();
   const a = data?.answers || {};
   $("c-action").checked = !!a.daily_action; $("c-lesson").checked = !!a.lesson;
-  $("c-loud").value = a.should_i || 5; $("c-loud-v").textContent = $("c-loud").value; $("c-win").value = a.win || "";
+  $("c-loud").value = a.scale || 5; $("c-loud-v").textContent = $("c-loud").value; $("c-win").value = a.note || "";
 }
 $("c-loud").oninput = e => $("c-loud-v").textContent = e.target.value;
 $("f-check").onsubmit = async e => { e.preventDefault();
-  const answers = { daily_action: $("c-action").checked, lesson: $("c-lesson").checked, should_i: +$("c-loud").value, win: $("c-win").value.trim().slice(0,1000) };
+  const wk = myWeek(), W = WEEK[wk] || WEEK[0];
+  const answers = { week: wk, daily_action: $("c-action").checked, lesson: $("c-lesson").checked, scale_q: W.scale, scale: +$("c-loud").value, note_q: W.note, note: $("c-win").value.trim().slice(0,1000) };
   const { error } = await SB.from("checkins").upsert({ user_id: S.user.id, day: today(), answers }, { onConflict: "user_id,day" });
   $("c-msg").textContent = error ? "Couldn't save, try again." : "Saved 🤍 Only you and Deepshikha can see this."; };
 
@@ -285,12 +306,12 @@ async function loadAdmin(){
     return el("tr",{},[el("td",{},[b]), el("td",{textContent:r.course}), el("td",{textContent:`${r.lessons_done}/${r.lessons_total}` + (r.current_week != null ? ` · week ${r.current_week}` : "")}),
       el("td",{textContent:r.last_lesson || "not started"}), el("td",{textContent:ago(r.last_seen)}),
       el("td",{},[el("span",{className:"pill" + (r.checkins_7d >= 4 ? " ok" : ""),textContent:`${r.checkins_7d} / 7`})]),
-      el("td",{textContent: r.last_checkin ? `${r.last_checkin} · should I ${last.should_i ?? "?"}/10 · ${last.win || "no win written"}` : "none yet"})]); }));
+      el("td",{textContent: r.last_checkin ? `${r.last_checkin} · ${last.scale ?? "?"}/10 · ${last.note || "nothing written"}` : "none yet"})]); }));
 }
 async function memberDetail(email){
   const { data } = await SB.rpc("admin_member_checkins", { member_email: email });
   const d = $("a-detail"); d.hidden = false;
-  d.replaceChildren(el("p",{className:"label",textContent:`${email} · check-ins`}), ...(data?.length ? data.map(k => el("p",{textContent:`${k.day} · should I ${k.answers.should_i}/10 · action ${k.answers.daily_action ? "✓" : "✕"} · lesson ${k.answers.lesson ? "✓" : "✕"} · ${k.answers.win || ""}`})) : [el("p",{textContent:"No check-ins yet."})]));
+  d.replaceChildren(el("p",{className:"label",textContent:`${email} · check-ins`}), ...(data?.length ? data.map(k => { const a = k.answers || {}; return el("p",{textContent:`${k.day} · week ${a.week ?? "?"} · ${a.scale_q || ""} ${a.scale ?? "?"}/10 · action ${a.daily_action ? "✓" : "✕"} · lesson ${a.lesson ? "✓" : "✕"} · ${a.note_q ? a.note_q + " " : ""}${a.note || ""}`}); }) : [el("p",{textContent:"No check-ins yet."})]));
 }
 
 SB.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_IN" && $("v-login").hidden === false) { booting = null; boot(); } });
