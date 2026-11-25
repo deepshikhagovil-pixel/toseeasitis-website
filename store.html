@@ -19,7 +19,7 @@
 <section><div class="wrap stack read" style="gap:1.6rem">
   <p class="label">Store</p>
   <h1>Ways to <em>work with me.</em></h1>
-  <p class="lede">From one session to six weeks together. Every one of these is me, personally.</p>
+  <p class="lede">From a free taste to three months together. Every one of these is me, personally.</p>
 </div></section>
 
 <section style="padding-top:0"><div class="wrap stack-lg">
@@ -35,7 +35,7 @@
     </div>
   </div>
 
-  <div class="offers">
+  <div class="offers" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))">
     <article class="offer">
       <span class="meta">1:1 · 30 min</span>
       <h3>1:1 coaching session</h3>
@@ -43,23 +43,38 @@
       <p class="amt">₹999</p>
       <div class="btns"><a class="btn btn-main" href="https://superprofile.bio/bookings/deepshikhagovil111?sessionId=6a79974b2e0ced0013a6f27a" target="_blank" rel="noopener">Get unstuck in 30 minutes</a></div>
     </article>
-    <article class="offer">
-      <span class="meta">Short course · 5 modules</span>
-      <h3>The "Should I?" Decision Reset</h3>
-      <p class="soft">The shoulds running your life, fear vs your gut, and why your body is part of every decision. Lessons, exercises and guided audio.</p>
-      <p class="amt">See price</p>
-      <div class="btns"><a class="btn btn-ghost" href="https://superprofile.bio/deepshikhagovil111" target="_blank" rel="noopener">Stop going round in circles</a></div>
-    </article>
-    <article class="offer">
-      <span class="meta">Guide</span>
-      <h3>The Permissionless Reset</h3>
-      <p class="soft">For when you keep waiting for someone else to say it's okay to live the life you want. Start tonight.</p>
-      <p class="amt">See price</p>
-      <div class="btns"><a class="btn btn-ghost" href="https://superprofile.bio/deepshikhagovil111" target="_blank" rel="noopener">Give myself permission</a></div>
-    </article>
   </div>
   <p class="note">Already a Coming Home member? Your lessons are where they've always been. Your welcome email has the link.</p>
 </div></section>
+
+<section class="dark" id="free"><div class="wrap split" style="align-items:start">
+  <div class="stack">
+    <p class="label">Free · start here</p>
+    <h2>Not ready to commit? <em>Experience me first.</em></h2>
+    <p class="soft">Pick one, tell me where to send it, and it's yours. No card, no catch.</p>
+    <ul class="marks" style="margin-top:.5rem">
+      <li><strong>The Identity Shift masterclass</strong> · 60 min recording. Why you keep living the life you were taught, and the shift that changes it.</li>
+      <li><strong>The Career Clarity masterclass</strong> · 30 min recording. For when you know it's not this job, but not yet what instead.</li>
+      <li><strong>Stop Asking "Should I?"</strong> · a free 3-day challenge with me and a small group. Catch your loop, hear your own answer, make one real move.</li>
+    </ul>
+  </div>
+  <form class="card-form" id="free-form" novalidate>
+    <label for="f-name">Your name</label><input id="f-name" name="name" required autocomplete="name">
+    <label for="f-email">Email</label><input id="f-email" name="email" type="email" required autocomplete="email">
+    <label for="f-ig">Instagram handle</label><input id="f-ig" name="instagram" placeholder="@yourname">
+    <label for="f-what">What do you want?</label>
+    <select id="f-what" name="what">
+      <option>The Identity Shift masterclass (60 min)</option>
+      <option>The Career Clarity masterclass (30 min)</option>
+      <option>The 3-day challenge: Stop Asking "Should I?"</option>
+    </select>
+    <button class="btn btn-main" type="submit">Send it to me</button>
+    <p class="note" id="f-ok" hidden>Done! Check your inbox. If the challenge isn't running right now, you're first on the list for the next group.</p>
+  </form>
+</div></section>
+<script>
+document.getElementById('free-form').addEventListener('submit',function(e){e.preventDefault();var f=e.target;if(!f.reportValidity())return;f.querySelector('button').disabled=true;document.getElementById('f-ok').hidden=false;});
+</script>
 
 </main>
 <footer class="foot"><div class="wrap">
