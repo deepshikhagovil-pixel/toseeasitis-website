@@ -105,11 +105,17 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .incl strong{font-family:var(--display);font-weight:500;font-size:1.45rem;line-height:1.2}
 
 /* proof wall: real message screenshots (rule 240) */
-.wall{columns:1;column-gap:1.1rem}
-@media (min-width:640px){.wall{columns:2}}
-@media (min-width:1000px){.wall{columns:3}}
-.wall figure{break-inside:avoid;margin:0 0 1.1rem;display:flex;flex-direction:column;gap:.5rem}
-.wall img{width:100%;height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.25))}
+.wall{columns:2;column-gap:.7rem}
+@media (min-width:700px){.wall{columns:3}}
+@media (min-width:1050px){.wall{columns:4}}
+.wall figure{break-inside:avoid;margin:0 0 .7rem;display:block}
+.wall figure:nth-child(3n+1){transform:rotate(-1.4deg)}
+.wall figure:nth-child(3n+2){transform:rotate(1deg)}
+.wall figure:nth-child(4n){transform:rotate(-.6deg) translateY(-6px)}
+.wall img{width:100%;height:auto;display:block;filter:drop-shadow(0 8px 18px rgba(0,0,0,.22))}
+.callrules{margin-top:1.6rem;padding:1.3rem 1.4rem;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.callrules ul{margin:.6rem 0 0;padding-left:1.1rem;display:grid;gap:.7rem}
+.callrules li{line-height:1.55}
 .wall figcaption{font-size:.78rem;letter-spacing:.06em;color:var(--soft);padding-left:.4rem}
 
 /* for / not for */
