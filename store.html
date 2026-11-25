@@ -64,16 +64,26 @@
     <label for="f-ig">Instagram handle</label><input id="f-ig" name="instagram" placeholder="@yourname">
     <label for="f-what">What do you want?</label>
     <select id="f-what" name="what">
-      <option>The Identity Shift masterclass (60 min)</option>
-      <option>The Career Clarity masterclass (30 min)</option>
-      <option>The 3-day challenge: Stop Asking "Should I?"</option>
+      <option value="identity">The Identity Shift masterclass (60 min)</option>
+      <option value="career">The Career Clarity masterclass (30 min)</option>
+      <option value="challenge">The 3-day challenge: Stop Asking "Should I?"</option>
     </select>
     <button class="btn btn-main" type="submit">Send it to me</button>
     <p class="note" id="f-ok" hidden>Done! Check your inbox. If the challenge isn't running right now, you're first on the list for the next group.</p>
   </form>
 </div></section>
 <script>
-document.getElementById('free-form').addEventListener('submit',function(e){e.preventDefault();var f=e.target;if(!f.reportValidity())return;f.querySelector('button').disabled=true;document.getElementById('f-ok').hidden=false;});
+/* Free form → Brevo (one Brevo form per freebie; Brevo adds to the list and sends the email). Kartike, 25 Nov 2026 */
+var BREVO={identity:"https://6fdca418.sibforms.com/serve/MUIFAEQu-gy5l7iMcfNmxtB8mBtYuWPCiLpAvMdIwwmkM-81ikuL-X0anqHqu4Z4zzF3HaoiF0pqoO4QWPpuH_qQeMjLVaNLKrW7EssgGARwyF1vsAIdYsZbfxqzyoJZa-Tn3Y9jsJY-PZOy0VDaLPy-tTt5WPkec6helgJxat9jJ56HfiYWJv3yNyRrhN-Y6hCWcSGTCD6yIFh3EQ==",career:"https://6fdca418.sibforms.com/serve/MUIFABB7bP6jl7gSMSqpXlgF4yv66KppRTgENa5utFmtAr-gZcjfk5PAGlvjl6usvSfcJ33VYU1nazzVJ5por4SvIRdHc01Z0W6_Iut0MP_X9ezVGJnMG8QT5G7i5_Z3lWfV38V9lKYoihuC0302PcQ0g9grv_j50GgHOk7hm72ddKLfmMJCgiCRyp0x9lIhHlTCuQmsVwPM1TIOFA==",challenge:"https://6fdca418.sibforms.com/serve/MUIFAHFHlDScWZk_3Om60RWFzKzfdKBwPklnKAnFXp-EYquqm0djZJ5YvuBCFkYbNi9-xk62VRwRvTigvvBthopq1IqSl_bNo9jRYr-z5CkljUE-5UlaJ4vegaKFkFdkkUkh1URnkYXvMA4rA05p_HuavL96n6a5Vz7i8K_3zmu6aibevAeHbUSetA9rJtYoCvAujo_XTi6LyYiBgw=="};
+document.getElementById('free-form').addEventListener('submit',function(e){
+  e.preventDefault();var f=e.target;if(!f.reportValidity())return;
+  var b=f.querySelector('button');b.disabled=true;b.textContent='Sending…';
+  var d=new URLSearchParams();d.append('FIRSTNAME',f.elements['name'].value.trim());d.append('EMAIL',f.elements['email'].value.trim());
+  d.append('INSTA_HANDLE',f.elements['instagram'].value.trim());d.append('email_address_check','');d.append('locale','en');
+  fetch(BREVO[f.elements['what'].value],{method:'POST',mode:'no-cors',body:d}).then(function(){
+    f.querySelectorAll('input,select,label').forEach(function(x){x.hidden=true});b.hidden=true;document.getElementById('f-ok').hidden=false;
+  }).catch(function(){b.disabled=false;b.textContent='Send it to me';alert('That didn\'t go through. Please try again, or email support@toseeasitis.com');});
+});
 </script>
 
 </main>
