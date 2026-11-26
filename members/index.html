@@ -89,6 +89,7 @@ td button{all:unset;cursor:pointer;text-decoration:underline}
 <section id="v-course" hidden><div class="grid">
  <nav aria-label="Weeks">
   <p class="label">Coming Home · your progress</p>
+  <p class="small gold" id="preview-note" hidden>Preview mode: you see every week open. Members only see what they've unlocked.</p>
   <div class="bar" aria-hidden="true"><i id="bar" style="width:0"></i></div>
   <p class="small" id="progress-text"></p>
   <ul class="weeks" id="weeks"></ul>
@@ -140,24 +141,24 @@ const show = v => VIEWS.forEach(x => $(x).hidden = x !== v);
 const el = (tag, props = {}, kids = []) => { const e = document.createElement(tag); Object.assign(e, props); kids.forEach(k => e.append(k)); return e; };
 // Week-by-week check-in + daily line from her own lessons (her note 25 Nov 2026: changes every week, no "should I?" from the free challenge; a new line every day)
 const WEEK = {
- 0:{scale:"How ready do you feel to come home?", note:"What made you say yes to this?", ph:"I'm tired of living a life that isn't mine.",
+ 0:{scale:"How ready do you feel to come home?", note:"What made you say yes to this?",
     quotes:["You're here. That already says everything.","Take what resonates, leave the rest.","You can never do this wrong or be behind.","This is your time. Not a minute of it is wasted."]},
- 1:{scale:"How much of today was YOUR choice?", note:"Whose rule did you catch yourself following today?", ph:"I said yes to the extra work because good girls don't say no.",
+ 1:{scale:"How much of today was YOUR choice?", note:"Whose rule did you catch yourself following today?",
     quotes:["You were taught this life. You can unlearn it.","Catch yourself in the act. No judging, only noticing.","The rule isn't yours. You can hand it back.","Your body knows before your head does.","Fear shouts. Intuition states.","Whose voice is this, really?","You're not stuck. You're living by rules you never chose."]},
- 2:{scale:"How clear do you feel today?", note:"Something I already know is…", ph:"I don't want to go back to that office.",
+ 2:{scale:"How clear do you feel today?", note:"Something I already know is…",
     quotes:["You're not short of information. You're short of permission.","What am I pretending not to know?","Am I scared, or am I clear?","A lot of what we call wants are shoulds wearing a costume.","If it feels mad, crazy and unreal, you're doing it right.","The idea that lit you up doesn't need five opinions.","You already know."]},
- 3:{scale:"How strong was the pull back to the old life today?", note:"When did you pause one minute before, and what happened?", ph:"I wanted to scroll after the call. I breathed instead.",
+ 3:{scale:"How strong was the pull back to the old life today?", note:"When did you pause one minute before, and what happened?",
     quotes:["A few more months is not a plan. It's a feeling wearing the plan's clothes.","This is fear, not a fact.","Nothing is wrong with you. Your body is keeping you safe.","The blank isn't a failure. It's information.","Coming back is part of coming home.","Your limit can move. A little more each time.","Gentle, yet firm."]},
- 4:{scale:"How seen did you let yourself be today?", note:"What did you share today?", ph:"I posted the story I'd been holding for a week.",
+ 4:{scale:"How seen did you let yourself be today?", note:"What did you share today?",
     quotes:["Whatever you choose, it's an experiment.","Nobody is handing you a stamp paper saying this is your life.","Small and honest beats polished.","Your brain believes what you do more than what you say.","You don't need a plan. You just need the next step.","Is this the next true step?","Who wrote the script of your life?"]},
- 5:{scale:"How easily did you receive today?", note:"Today I let in…", ph:"A compliment. I just said thank you.",
+ 5:{scale:"How easily did you receive today?", note:"Today I let in…",
     quotes:["The way you take a compliment is the way you'll take a payment.","Your bank balance doesn't get a vote.","It's not scary once it's a number.","Say thank you. Nothing after it.","Small is perfect.","I can receive.","More is on its way."]},
- 6:{scale:"How much did you live as her today?", note:"Today I chose from who I'm becoming by…", ph:"I said my truth to my sister.",
+ 6:{scale:"How much did you live as her today?", note:"Today I chose from who I'm becoming by…",
     quotes:["Stop visiting her. Live as her.","You came here to be this.","Say it to one person. Make it real.","When the old life calls, you know your way home.","Look how far you've walked."]}
 };
 const dayOfYear = () => Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 864e5);
-function myWeek(){ const open = S.lessons.filter(x => x.unlocked && !S.done.has(x.id)); return (open[0] || S.lessons[S.lessons.length-1] || {week:0}).week; }
-let S = { weeks: [], lessons: [], done: new Set(), current: null, user: null };
+function myWeek(){ if (S.admin) return (S.lessons.find(x => x.id === S.current) || {week:0}).week; const open = S.lessons.filter(x => x.unlocked && !S.done.has(x.id)); return (open[0] || S.lessons[S.lessons.length-1] || {week:0}).week; }
+let S = { weeks: [], lessons: [], done: new Set(), current: null, user: null, admin: false };
 
 function richText(t){ // escape, then **bold**
   const d = el("div"); d.textContent = t || ""; return d.innerHTML.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
@@ -169,7 +170,7 @@ async function bootInner(){
   if (!session) { show("v-login"); return; }
   S.user = session.user; $("tabs").hidden = false;
   const { data: isAdmin } = await SB.rpc("is_admin");
-  $("t-admin").hidden = !isAdmin;
+  $("t-admin").hidden = !isAdmin; S.admin = !!isAdmin;
   const { data: enr } = await SB.from("enrolments").select("course_id").eq("email", S.user.email.toLowerCase());
   if (!enr?.length && !isAdmin) { show("v-none"); return; }
   await loadCourse(); show("v-course");
@@ -184,16 +185,23 @@ async function loadCourse(){
   S.weeks = w.data || []; S.lessons = l.data || [];
   S.done = new Set((p.data || []).filter(x => x.done_at).map(x => x.lesson_id));
   const seq = S.lessons;
-  seq.forEach((x, i) => x.unlocked = i === 0 || S.done.has(seq[i-1].id));
+  seq.forEach((x, i) => x.unlocked = S.admin || i === 0 || S.done.has(seq[i-1].id)); // admin = preview everything
   const next = seq.find(x => x.unlocked && !S.done.has(x.id)) || seq[seq.length-1];
   if (!S.current || !seq.find(x => x.id === S.current)) S.current = next?.id;
-  const W = WEEK[myWeek()] || WEEK[0];
-  $("quote").textContent = W.quotes[dayOfYear() % W.quotes.length];
-  $("c-scale-q").textContent = W.scale; $("c-note-q").textContent = W.note; $("c-win").placeholder = W.ph;
+  renderWeekCard();
   renderNav(); renderLesson(); loadCheckin();
 }
 
+function renderWeekCard(){
+  const W = WEEK[myWeek()] || WEEK[0];
+  $("quote").textContent = W.quotes[dayOfYear() % W.quotes.length];
+  $("c-scale-q").textContent = W.scale; $("c-note-q").textContent = W.note; $("c-win").placeholder = "";
+  const old = $("all-lines"); if (old) old.remove();
+  if (S.admin) { const box = el("div",{id:"all-lines",className:"small"}); box.append(el("p",{className:"label",textContent:"Preview · all lines this week (one shows per day)"}));
+    W.quotes.forEach(q => box.append(el("p",{textContent:"· " + q,style:"margin:.2rem 0"}))); $("quote").after(box); }
+}
 function renderNav(){
+  $("preview-note").hidden = !S.admin;
   const total = S.lessons.length, done = S.lessons.filter(x => S.done.has(x.id)).length;
   $("bar").style.width = (total ? Math.round(100*done/total) : 0) + "%";
   const curW = S.lessons.find(x => x.id === S.current)?.week ?? 0;
@@ -215,6 +223,7 @@ let player = null, maxPct = 0, renderId = 0;
 async function renderLesson(){
   const my = ++renderId;
   const L = S.lessons.find(x => x.id === S.current); if (!L) return;
+  if (S.admin) renderWeekCard();
   const wk = S.weeks.find(w => w.week === L.week);
   $("l-where").textContent = (L.week === 0 ? "Start" : `Week ${L.week}`) + ` · ${wk?.title || ""}`;
   $("l-title").textContent = L.title;
