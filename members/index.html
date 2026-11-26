@@ -5,7 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Coming Home · Members</title>
 <meta name="robots" content="noindex">
-<link rel="icon" href="/assets/email/header.jpg">
+<link rel="icon" href="/assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+<link rel="manifest" href="/members/manifest.json">
+<meta name="theme-color" content="#0F1F16">
+<meta name="apple-mobile-web-app-title" content="Coming Home">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;600&display=swap">
 <style>
@@ -91,7 +96,12 @@ td button{all:unset;cursor:pointer;text-decoration:underline}
  <p>this email isn't on a program yet. If you've paid, message <a href="mailto:support@toseeasitis.com">support@toseeasitis.com</a> and we'll sort it within a day.</p>
 </section>
 
-<section id="v-course" hidden><div class="grid">
+<section id="v-course" hidden>
+  <div class="card" id="tip-home" hidden style="margin-top:1.2rem"><p class="label">Keep Coming Home one tap away 📲</p>
+   <p class="small" style="margin:0">You'll stay logged in on this phone. Add this page to your home screen so it opens like an app:</p>
+   <p class="small" style="margin:0" id="tip-how"></p>
+   <button class="btn" type="button" id="tip-ok">Got it</button></div>
+<div class="grid">
  <nav aria-label="Weeks">
   <p class="label">Coming Home · your progress</p>
   <p class="small gold" id="preview-note" hidden>Preview mode: you see every week open. Members only see what they've unlocked.</p>
@@ -360,6 +370,15 @@ async function memberDetail(email){
   d.replaceChildren(el("p",{className:"label",textContent:`${email} · check-ins`}), ...(data?.length ? data.map(k => { const a = k.answers || {}; return el("p",{textContent:`${k.day} · week ${a.week ?? "?"} · ${a.scale_q || ""} ${a.scale ?? "?"}/10 · action ${a.daily_action ? "✓" : "✕"} · lesson ${a.lesson ? "✓" : "✕"} · meditation ${a.meditation ? "✓" : "✕"} · ${a.note_q ? a.note_q + " " : ""}${a.note || ""}`}); }) : [el("p",{textContent:"No check-ins yet."})]));
 }
 
+(function homeTip(){ // her ask 26 Nov 2026: members should find their way back without the email
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  let seen = false; try { seen = localStorage.getItem("tipHomeSeen") === "1"; } catch(e) {}
+  if (standalone || seen) return;
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  $("tip-how").textContent = ios ? "iPhone: tap the Share button (square with an arrow) → Add to Home Screen." : "Android: tap ⋮ (top right) → Add to Home screen. On a laptop: bookmark this page.";
+  $("tip-home").hidden = false;
+  $("tip-ok").onclick = () => { $("tip-home").hidden = true; try { localStorage.setItem("tipHomeSeen","1"); } catch(e) {} };
+})();
 SB.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_IN" && $("v-login").hidden === false) { booting = null; boot(); } });
 boot();
 </script>
