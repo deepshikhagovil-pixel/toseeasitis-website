@@ -10,9 +10,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;600&display=swap">
 <style>
 /* Members area (Kartike, 25 Nov 2026). Same tokens as toseeasitis.com (07-brand/DESIGN.md); layout = her approved preview. */
-:root{--bg:#F3EDE1;--fg:#141A15;--soft:#5B6357;--line:#D6CAB2;--card:#F8F4EB;--forest:#0F1F16;--gold:#C9A227;
+:root{--green:#1F4D33;--bg:#F3EDE1;--fg:#141A15;--soft:#5B6357;--line:#D6CAB2;--card:#F8F4EB;--forest:#0F1F16;--gold:#C9A227;
  --display:"Cormorant Garamond",Georgia,serif;--sans:"DM Sans",system-ui,sans-serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B170F;--fg:#EFE8DA;--soft:#AEB4A6;--line:#26382B;--card:#13241A;color-scheme:dark}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B170F;--fg:#EFE8DA;--soft:#AEB4A6;--line:#26382B;--card:#13241A;--green:#3F7A55;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0B170F;--fg:#EFE8DA;--soft:#AEB4A6;--line:#26382B;--card:#13241A;color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--fg);font:400 15.5px/1.6 var(--sans)}
 [hidden]{display:none!important}
@@ -52,7 +52,7 @@ textarea{min-height:70px;resize:vertical}input[type=range]{width:100%;accent-col
 .streak{border-top:1px solid var(--line);padding-top:.8rem;display:grid;gap:.35rem}
 .streak .row7{display:grid;grid-template-columns:5.5rem repeat(7,1fr);gap:.25rem;align-items:center;font-size:.78rem}
 .streak .d{height:1.3rem;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:.7rem}
-.streak .d.on{background:var(--gold);border-color:var(--gold);color:#0F1F16}
+.streak .d.on{background:var(--green);border-color:var(--green);color:#F3EDE1}
 .streak .day{text-align:center;color:var(--soft);font-size:.68rem}
 .center{max-width:460px;margin:12vh auto 0;display:flex;flex-direction:column;gap:1rem;text-align:center}
 table{width:100%;border-collapse:collapse;font-size:.9rem;font-variant-numeric:tabular-nums}th,td{text-align:left;padding:.7rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
@@ -324,11 +324,15 @@ async function loadCheckin(){
   $("c-loud").value = a.scale || 5; $("c-loud-v").textContent = $("c-loud").value; $("c-win").value = a.note || "";
 }
 $("c-loud").oninput = e => $("c-loud-v").textContent = e.target.value;
-$("f-check").onsubmit = async e => { e.preventDefault();
+async function saveCheckin(msg){
   const wk = myWeek(), W = WEEK[wk] || WEEK[0];
   const answers = { week: wk, daily_action: $("c-action").checked, lesson: $("c-lesson").checked, meditation: $("c-med").checked, scale_q: W.scale, scale: +$("c-loud").value, note_q: W.note, note: $("c-win").value.trim().slice(0,1000) };
   const { error } = await SB.from("checkins").upsert({ user_id: S.user.id, day: today(), answers }, { onConflict: "user_id,day" });
-  $("c-msg").textContent = error ? "Couldn't save, try again." : "Saved 🤍"; if (!error) loadStreak(); };
+  if (msg || error) $("c-msg").textContent = error ? "Couldn't save, try again." : "Saved 🤍";
+  if (!error) loadStreak();
+}
+["c-action","c-lesson","c-med"].forEach(id => $(id).addEventListener("change", () => saveCheckin(false))); // ticks save instantly and colour today's dot (her ask 26 Nov 2026)
+$("f-check").onsubmit = async e => { e.preventDefault(); return saveCheckin(true); };
 
 $("f-login").onsubmit = async e => { e.preventDefault();
   const email = $("email").value.trim().toLowerCase(); $("login-msg").textContent = "Sending…";
