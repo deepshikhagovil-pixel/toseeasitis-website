@@ -375,7 +375,7 @@ async function memberDetail(email){
   let seen = false; try { seen = localStorage.getItem("tipHomeSeen") === "1"; } catch(e) {}
   if (standalone || seen) return;
   const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
-  $("tip-how").textContent = ios ? "iPhone: tap the Share button (square with an arrow) → Add to Home Screen." : "Android: tap ⋮ (top right) → Add to Home screen. On a laptop: bookmark this page.";
+  $("tip-how").textContent = ios ? "iPhone: tap the Share button (square with an arrow) → Add to Home Screen." : "Android: tap ⋮ (top right) → Install (or Install app / Add to Home screen). On a laptop: bookmark this page.";
   $("tip-home").hidden = false;
   $("tip-ok").onclick = () => { $("tip-home").hidden = true; try { localStorage.setItem("tipHomeSeen","1"); } catch(e) {} };
 })();
