@@ -49,6 +49,11 @@ textarea,input[type=email],input[type=text]{width:100%;font:inherit;padding:.75r
 textarea{min-height:70px;resize:vertical}input[type=range]{width:100%;accent-color:var(--gold)}
 .check{display:flex;gap:.6rem;align-items:flex-start;font-size:.93rem;cursor:pointer}.check input{accent-color:var(--gold);margin-top:.3rem}
 .small{font-size:.8rem;color:var(--soft)}.gold{color:var(--gold)}
+.streak{border-top:1px solid var(--line);padding-top:.8rem;display:grid;gap:.35rem}
+.streak .row7{display:grid;grid-template-columns:5.5rem repeat(7,1fr);gap:.25rem;align-items:center;font-size:.78rem}
+.streak .d{height:1.3rem;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:.7rem}
+.streak .d.on{background:var(--gold);border-color:var(--gold);color:#0F1F16}
+.streak .day{text-align:center;color:var(--soft);font-size:.68rem}
 .center{max-width:460px;margin:12vh auto 0;display:flex;flex-direction:column;gap:1rem;text-align:center}
 table{width:100%;border-collapse:collapse;font-size:.9rem;font-variant-numeric:tabular-nums}th,td{text-align:left;padding:.7rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
 th{font:600 .68rem/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--soft)}
@@ -117,6 +122,7 @@ td button{all:unset;cursor:pointer;text-decoration:underline}
    <textarea id="c-win"></textarea>
    <button class="btn main" type="submit">Save today</button>
    <p class="small" id="c-msg" role="status"></p>
+   <div class="streak" id="streak" aria-label="Your last 7 days"></div>
   </form>
  </aside>
 </div></section>
@@ -294,10 +300,27 @@ async function markDone(id, pct){
 }
 
 const today = () => new Date().toLocaleDateString("en-CA");
+async function loadStreak(){ // her ask 26 Nov 2026: let them see their own consistency, to motivate, never to scold
+  const days = [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d; });
+  const from = days[0].toLocaleDateString("en-CA");
+  const { data } = await SB.from("checkins").select("day,answers").eq("user_id", S.user.id).gte("day", from);
+  const by = Object.fromEntries((data || []).map(k => [k.day, k.answers || {}]));
+  const rows = [["Daily action","daily_action"],["Lesson","lesson"],["Meditation","meditation"]];
+  const box = $("streak"); box.replaceChildren(el("p",{className:"label",textContent:"Your last 7 days"}));
+  const head = el("div",{className:"row7"},[el("span")]);
+  days.forEach(d => head.append(el("span",{className:"day",textContent:d.toLocaleDateString("en-IN",{weekday:"narrow"})})));
+  box.append(head);
+  rows.forEach(([label,key]) => { const r = el("div",{className:"row7"},[el("span",{textContent:label})]);
+    days.forEach(d => { const a = by[d.toLocaleDateString("en-CA")] || {}; r.append(el("span",{className:"d" + (a[key] ? " on" : ""),textContent: a[key] ? "✓" : "",title:d.toDateString()})); });
+    box.append(r); });
+  const active = days.filter(d => { const a = by[d.toLocaleDateString("en-CA")]; return a && (a.daily_action || a.lesson || a.meditation); }).length;
+  box.append(el("p",{className:"small",textContent: active === 0 ? "Your week starts with one tick 🤍" : active === 7 ? "7 of 7 days. Look at you 🔥" : `${active} of the last 7 days ${active >= 4 ? "🔥" : "🌱"}`}));
+}
 async function loadCheckin(){
   const { data } = await SB.from("checkins").select("answers").eq("user_id", S.user.id).eq("day", today()).maybeSingle();
   const a = data?.answers || {};
   $("c-action").checked = !!a.daily_action; $("c-lesson").checked = !!a.lesson; $("c-med").checked = !!a.meditation;
+  loadStreak();
   $("c-loud").value = a.scale || 5; $("c-loud-v").textContent = $("c-loud").value; $("c-win").value = a.note || "";
 }
 $("c-loud").oninput = e => $("c-loud-v").textContent = e.target.value;
@@ -305,7 +328,7 @@ $("f-check").onsubmit = async e => { e.preventDefault();
   const wk = myWeek(), W = WEEK[wk] || WEEK[0];
   const answers = { week: wk, daily_action: $("c-action").checked, lesson: $("c-lesson").checked, meditation: $("c-med").checked, scale_q: W.scale, scale: +$("c-loud").value, note_q: W.note, note: $("c-win").value.trim().slice(0,1000) };
   const { error } = await SB.from("checkins").upsert({ user_id: S.user.id, day: today(), answers }, { onConflict: "user_id,day" });
-  $("c-msg").textContent = error ? "Couldn't save, try again." : "Saved 🤍"; };
+  $("c-msg").textContent = error ? "Couldn't save, try again." : "Saved 🤍"; if (!error) loadStreak(); };
 
 $("f-login").onsubmit = async e => { e.preventDefault();
   const email = $("email").value.trim().toLowerCase(); $("login-msg").textContent = "Sending…";
