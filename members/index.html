@@ -140,7 +140,6 @@ document.addEventListener('submit',function(e){var f=e.target;if(f&&f.id==='free
    <label class="check"><input type="checkbox" id="c-action"> I did today's daily action</label>
    <label class="check"><input type="checkbox" id="c-lesson"> I watched or did today's lesson</label>
    <label class="check"><input type="checkbox" id="c-med"> I did this week's meditation</label>
-   <div id="c-med-play"></div>
    <label for="c-loud" style="font-size:.93rem"><span id="c-scale-q"></span> <b id="c-loud-v">5</b>/10</label>
    <input type="range" id="c-loud" min="1" max="10" value="5">
    <label for="c-win" style="font-size:.93rem" id="c-note-q"></label>
@@ -274,14 +273,6 @@ function attachBtn(lessonId, i, label){
     else { b.disabled = false; b.textContent = label; alert(r.error ? "This one isn't open yet. Finish the lesson before it first 🤍" : "Couldn't open it. Check your internet and try again."); } };
   return b;
 }
-function renderMedPlay(){ // this week's meditation one tap away, right in the check-in
-  const box = $("c-med-play"); box.replaceChildren();
-  const wk = myWeek() || 1;
-  const L = S.lessons.find(x => x.week === wk && x.unlocked && (x.attachments || []).some(a => a.kind === "audio"));
-  if (!L) return;
-  const i = L.attachments.findIndex(a => a.kind === "audio");
-  box.append(attachBtn(L.id, i, "🎧 Play this week's meditation"));
-}
 let player = null, maxPct = 0, renderId = 0;
 async function renderLesson(){
   const my = ++renderId;
@@ -370,7 +361,7 @@ async function loadCheckin(){
   const { data } = await SB.from("checkins").select("answers").eq("user_id", S.user.id).eq("day", today()).maybeSingle();
   const a = data?.answers || {};
   $("c-action").checked = !!a.daily_action; $("c-lesson").checked = !!a.lesson; $("c-med").checked = !!a.meditation;
-  loadStreak(); renderMedPlay();
+  loadStreak();
   $("c-loud").value = a.scale || 5; $("c-loud-v").textContent = $("c-loud").value; $("c-win").value = a.note || "";
 }
 $("c-loud").oninput = e => $("c-loud-v").textContent = e.target.value;
