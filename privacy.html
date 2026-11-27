@@ -12,6 +12,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/style.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FE8QNYLK2M"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-FE8QNYLK2M');
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.href,t=(a.textContent||'').trim().slice(0,60);
+if(h.indexOf('cal.com')>-1||h.indexOf('calendly.com')>-1)gtag('event','book_call',{link_text:t,link_url:h});
+else if(h.indexOf('rzp.io')>-1)gtag('event','begin_checkout',{link_text:t,link_url:h});
+else if(h.indexOf('instagram.com')>-1)gtag('event','instagram_click',{link_text:t});},true);
+document.addEventListener('submit',function(e){var f=e.target;if(f&&f.id==='free-form'){var w=f.elements['what'];gtag('event','sign_up',{method:w?w.value:'free'});}},true);
+</script>
 </head>
 <body>
 <header class="nav"><div class="wrap"><a class="logo" href="/">to see as it is</a><nav aria-label="Main"><ul><li><a href="/">Home</a></li><li><a href="/coming-home">Coming Home</a></li><li><a href="/store">Store</a></li><li><a href="/about">About</a></li></ul></nav></div></header>
@@ -19,7 +29,7 @@
 <section><div class="wrap stack" style="max-width:46rem;gap:1.2rem">
   <p class="label">Privacy policy</p>
   <h1>Your privacy</h1>
-  <p class="note">Last updated: 25 November 2026</p>
+  <p class="note">Last updated: 27 November 2026</p>
   <p>This policy explains how To See As It Is ("we", "I"), run by Deepshikha Govil, Ghaziabad, Uttar Pradesh, India, collects and uses your personal data when you use toseeasitis.com, book a call, buy a program, course or session, or use the members area. It follows India's Digital Personal Data Protection Act, 2023.</p>
   <h3>What I collect</h3>
   <p>Your name, email address and phone number; your answers to booking questions; payment details needed to confirm your purchase (card and bank details are handled by the payment provider and never reach me); and, if you are a member, your course progress, check-ins, journal entries and wins you choose to write inside the members area.</p>
@@ -32,7 +42,7 @@
   <h3>Your rights</h3>
   <p>You can ask to see, correct or delete your data, or withdraw your consent, by writing to support@toseeasitis.com. I'll respond within 30 days. Questions or complaints go to the same address (grievance contact: Deepshikha Govil).</p>
   <h3>Cookies</h3>
-  <p>The website uses only what it needs to work and to keep you logged in to the members area.</p>
+  <p>The website uses what it needs to work and to keep you logged in to the members area, and Google Analytics to understand how visitors use the site (pages visited, where visits come from, device and rough location). It doesn't identify you by name.</p>
 </div></section>
 
 </main>

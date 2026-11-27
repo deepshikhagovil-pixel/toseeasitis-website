@@ -12,6 +12,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/style.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FE8QNYLK2M"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-FE8QNYLK2M');
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.href,t=(a.textContent||'').trim().slice(0,60);
+if(h.indexOf('cal.com')>-1||h.indexOf('calendly.com')>-1)gtag('event','book_call',{link_text:t,link_url:h});
+else if(h.indexOf('rzp.io')>-1)gtag('event','begin_checkout',{link_text:t,link_url:h});
+else if(h.indexOf('instagram.com')>-1)gtag('event','instagram_click',{link_text:t});},true);
+document.addEventListener('submit',function(e){var f=e.target;if(f&&f.id==='free-form'){var w=f.elements['what'];gtag('event','sign_up',{method:w?w.value:'free'});}},true);
+</script>
 </head>
 <body>
 <header class="nav"><div class="wrap"><a class="logo" href="/">to see as it is</a><nav aria-label="Main"><ul><li><a href="/">Home</a></li><li><a href="/coming-home" aria-current="page">Coming Home</a></li><li><a href="/store">Store</a></li><li><a href="/about">About</a></li></ul></nav></div></header>

@@ -34,6 +34,16 @@ a.card.main .sub{color:#C9C2B0}
 .small{font-size:.8rem;color:var(--soft)}
 .small a{color:inherit}
 </style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FE8QNYLK2M"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-FE8QNYLK2M');
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.href,t=(a.textContent||'').trim().slice(0,60);
+if(h.indexOf('cal.com')>-1||h.indexOf('calendly.com')>-1)gtag('event','book_call',{link_text:t,link_url:h});
+else if(h.indexOf('rzp.io')>-1)gtag('event','begin_checkout',{link_text:t,link_url:h});
+else if(h.indexOf('instagram.com')>-1)gtag('event','instagram_click',{link_text:t});},true);
+document.addEventListener('submit',function(e){var f=e.target;if(f&&f.id==='free-form'){var w=f.elements['what'];gtag('event','sign_up',{method:w?w.value:'free'});}},true);
+</script>
 </head>
 <body>
 <main>
