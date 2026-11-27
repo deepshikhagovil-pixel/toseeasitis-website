@@ -239,16 +239,24 @@ function renderNav(){
   }));
 }
 
+let hlsP = null; const loadHls = () => hlsP ||= new Promise((ok, no) => { const sc = document.createElement("script"); sc.src = "https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"; sc.onload = ok; sc.onerror = no; document.head.append(sc); });
 // meditation/audio inside a lesson: never a silent no-op (Nishtha 27 Nov 2026: "meditation not opening")
 function attachBtn(lessonId, i, label){
   const b = el("button",{className:"btn",type:"button",textContent:label});
   b.onclick = async () => { b.disabled = true; b.textContent = "Opening…";
     const r = await SB.functions.invoke("media",{ body:{ lesson_id: lessonId, attachment: i } });
     const video = () => { const box = el("div",{className:"player"}); box.append(el("iframe",{src:r.data.embed,allow:"autoplay;encrypted-media;fullscreen",allowFullscreen:true,title:label})); return box; };
-    if (r.data?.audio) { // plain audio bar: play button + moving line (her ask 27 Nov 2026); falls back to the video player if it can't load
-      const au = el("audio",{controls:true,preload:"metadata",src:r.data.audio,className:"audio"}); au.setAttribute("controlsList","nodownload");
-      au.addEventListener("error", () => { if (r.data.embed) au.replaceWith(video()); }, { once:true });
-      b.replaceWith(au); au.play().catch(() => {}); }
+    if (r.data?.hls) { // plain audio bar: play button + moving line (her ask 27 Nov 2026); falls back to the video player if it can't load
+      const au = el("audio",{controls:true,preload:"metadata",className:"audio"}); au.setAttribute("controlsList","nodownload");
+      const fallback = () => { if (r.data.embed && au.isConnected) au.replaceWith(video()); };
+      au.addEventListener("error", fallback, { once:true });
+      b.replaceWith(au);
+      try {
+        if (au.canPlayType("application/vnd.apple.mpegurl")) au.src = r.data.hls; // iPhone / Safari play the stream natively
+        else { await loadHls(); if (!window.Hls?.isSupported()) throw 0;
+          const h = new Hls(); h.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) { h.destroy(); fallback(); } }); h.loadSource(r.data.hls); h.attachMedia(au); }
+        au.play().catch(() => {});
+      } catch(e) { fallback(); } }
     else if (r.data?.embed) b.replaceWith(video());
     else { b.disabled = false; b.textContent = label; alert(r.error ? "This one isn't open yet. Finish the lesson before it first 🤍" : "Couldn't open it. Check your internet and try again."); } };
   return b;
