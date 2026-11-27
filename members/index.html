@@ -126,6 +126,7 @@ td button{all:unset;cursor:pointer;text-decoration:underline}
    <label class="check"><input type="checkbox" id="c-action"> I did today's daily action</label>
    <label class="check"><input type="checkbox" id="c-lesson"> I watched or did today's lesson</label>
    <label class="check"><input type="checkbox" id="c-med"> I did this week's meditation</label>
+   <div id="c-med-play"></div>
    <label for="c-loud" style="font-size:.93rem"><span id="c-scale-q"></span> <b id="c-loud-v">5</b>/10</label>
    <input type="range" id="c-loud" min="1" max="10" value="5">
    <label for="c-win" style="font-size:.93rem" id="c-note-q"></label>
@@ -237,6 +238,23 @@ function renderNav(){
   }));
 }
 
+// meditation/audio inside a lesson: never a silent no-op (Nishtha 27 Nov 2026: "meditation not opening")
+function attachBtn(lessonId, i, label){
+  const b = el("button",{className:"btn",type:"button",textContent:label});
+  b.onclick = async () => { b.disabled = true; b.textContent = "Opening…";
+    const r = await SB.functions.invoke("media",{ body:{ lesson_id: lessonId, attachment: i } });
+    if (r.data?.embed) { const box = el("div",{className:"player"}); box.append(el("iframe",{src:r.data.embed,allow:"autoplay;encrypted-media;fullscreen",allowFullscreen:true,title:label})); b.replaceWith(box); }
+    else { b.disabled = false; b.textContent = label; alert(r.error ? "This one isn't open yet. Finish the lesson before it first 🤍" : "Couldn't open it. Check your internet and try again."); } };
+  return b;
+}
+function renderMedPlay(){ // this week's meditation one tap away, right in the check-in
+  const box = $("c-med-play"); box.replaceChildren();
+  const wk = myWeek() || 1;
+  const L = S.lessons.find(x => x.week === wk && x.unlocked && (x.attachments || []).some(a => a.kind === "audio"));
+  if (!L) return;
+  const i = L.attachments.findIndex(a => a.kind === "audio");
+  box.append(attachBtn(L.id, i, "🎧 Play this week's meditation"));
+}
 let player = null, maxPct = 0, renderId = 0;
 async function renderLesson(){
   const my = ++renderId;
@@ -252,12 +270,7 @@ async function renderLesson(){
   const setDone = () => { const d = S.done.has(L.id); doneBtn.textContent = d ? "Done ✓" : "Mark as done"; doneBtn.disabled = d; };
   setDone();
   doneBtn.onclick = async () => { doneBtn.disabled = true; await markDone(L.id, 100); };
-  (L.attachments || []).forEach((a, i) => {
-    const b = el("button",{className:"btn",type:"button",textContent:"▶ " + a.title});
-    b.onclick = async () => { const r = await SB.functions.invoke("media",{ body:{ lesson_id: L.id, attachment: i } });
-      if (r.data?.embed) { const box = el("div",{className:"player"}); box.append(el("iframe",{src:r.data.embed,allow:"autoplay;encrypted-media",title:a.title})); b.replaceWith(box); } };
-    $("l-files").append(b);
-  });
+  (L.attachments || []).forEach((a, i) => $("l-files").append(attachBtn(L.id, i, "▶ " + a.title)));
   const files = [...(L.files || [])];
   if (L.file_url && !files.some(f => f.file === L.file_url)) files.unshift({ title: L.title, file: L.file_url });
   files.forEach(f => { const b = el("button",{className:"btn",type:"button",textContent:"⬇ " + f.title});
@@ -316,7 +329,7 @@ async function loadStreak(){ // her ask 26 Nov 2026: let them see their own cons
   const { data } = await SB.from("checkins").select("day,answers").eq("user_id", S.user.id).gte("day", from);
   const by = Object.fromEntries((data || []).map(k => [k.day, k.answers || {}]));
   const rows = [["Daily action","daily_action"],["Lesson","lesson"],["Meditation","meditation"]];
-  const box = $("streak"); box.replaceChildren(el("p",{className:"label",textContent:"Your last 7 days"}));
+  const box = $("streak"); box.replaceChildren(el("p",{className:"label",textContent:"Your last 7 days"}), el("p",{className:"small",textContent:"Fills in by itself from your ticks above ☝️"}));
   const head = el("div",{className:"row7"},[el("span")]);
   days.forEach(d => head.append(el("span",{className:"day",textContent:d.toLocaleDateString("en-IN",{weekday:"narrow"})})));
   box.append(head);
@@ -330,7 +343,7 @@ async function loadCheckin(){
   const { data } = await SB.from("checkins").select("answers").eq("user_id", S.user.id).eq("day", today()).maybeSingle();
   const a = data?.answers || {};
   $("c-action").checked = !!a.daily_action; $("c-lesson").checked = !!a.lesson; $("c-med").checked = !!a.meditation;
-  loadStreak();
+  loadStreak(); renderMedPlay();
   $("c-loud").value = a.scale || 5; $("c-loud-v").textContent = $("c-loud").value; $("c-win").value = a.note || "";
 }
 $("c-loud").oninput = e => $("c-loud-v").textContent = e.target.value;
